@@ -1,14 +1,25 @@
-﻿using Unity.Burst;
+﻿using Timespawn.EntityTween.Tweens;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+
 
 #if UNITY_TINY_ALL_0_31_0
 using Unity.Tiny;
 #elif UNITY_2D_ENTITIES
 using Unity.U2D.Entities;
 #endif
+[assembly:
+    RegisterGenericJobType(
+        typeof(TweenGenerateSystem<TweenTranslationCommand, TweenTranslation, Translation, float3>.GenerateJob))]
+[assembly:
+    RegisterGenericJobType(
+        typeof(TweenGenerateSystem<TweenRotationCommand, TweenRotation, Rotation, quaternion>.GenerateJob))]
+[assembly:
+    RegisterGenericJobType(
+        typeof(TweenGenerateSystem<TweenScaleCommand, TweenScale, NonUniformScale, float3>.GenerateJob))]
 
 namespace Timespawn.EntityTween.Tweens
 {
@@ -20,7 +31,7 @@ namespace Timespawn.EntityTween.Tweens
         where TTweenInfoValue : struct
     {
         [BurstCompile]
-        private struct GenerateJob : IJobChunk
+        internal struct GenerateJob : IJobChunk
         {
             [ReadOnly] public int TweenInfoTypeIndex;
             [ReadOnly] public double ElapsedTime;
@@ -54,7 +65,8 @@ namespace Timespawn.EntityTween.Tweens
                         ParallelWriter.AddComponent<TTarget>(chunkIndex, entity);
                     }
 
-                    TweenState tween = new TweenState(command.GetTweenParams(), ElapsedTime, chunkIndex, TweenInfoTypeIndex);
+                    TweenState tween = new TweenState(command.GetTweenParams(), ElapsedTime, chunkIndex,
+                        TweenInfoTypeIndex);
                     ParallelWriter.AppendToBuffer(chunkIndex, entity, tween);
 
                     TTweenInfo info = default;
@@ -77,7 +89,8 @@ namespace Timespawn.EntityTween.Tweens
         protected override void OnUpdate()
         {
             double elapsedTime = Time.ElapsedTime;
-            EndSimulationEntityCommandBufferSystem endSimECBSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+            EndSimulationEntityCommandBufferSystem endSimECBSystem =
+                World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
 
             GenerateJob job = new GenerateJob
             {
@@ -95,9 +108,21 @@ namespace Timespawn.EntityTween.Tweens
         }
     }
 
-    internal class TweenTranslationGenerateSystem : TweenGenerateSystem<TweenTranslationCommand, TweenTranslation, Translation, float3> {}
-    internal class TweenRotationGenerateSystem : TweenGenerateSystem<TweenRotationCommand, TweenRotation, Rotation, quaternion> {}
-    internal class TweenScaleGenerateSystem : TweenGenerateSystem<TweenScaleCommand, TweenScale, NonUniformScale, float3> {}
+    internal class
+        TweenTranslationGenerateSystem : TweenGenerateSystem<TweenTranslationCommand, TweenTranslation, Translation,
+            float3>
+    {
+    }
+
+    internal class
+        TweenRotationGenerateSystem : TweenGenerateSystem<TweenRotationCommand, TweenRotation, Rotation, quaternion>
+    {
+    }
+
+    internal class
+        TweenScaleGenerateSystem : TweenGenerateSystem<TweenScaleCommand, TweenScale, NonUniformScale, float3>
+    {
+    }
 
 #if UNITY_TINY_ALL_0_31_0 || UNITY_2D_ENTITIES
     internal class TweenTintGenerateSystem : TweenGenerateSystem<TweenTintCommand, TweenTint, SpriteRenderer, float4> {}
