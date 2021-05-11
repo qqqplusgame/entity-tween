@@ -1,22 +1,38 @@
-﻿using Unity.Burst;
+﻿using Timespawn.EntityTween.Tweens;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
+using Unity.Mathematics;
+using Unity.Transforms;
+
+[assembly:
+    RegisterGenericJobType(
+        typeof(TweenDestroySystem<TweenTranslation>.DestroyJob))]
+[assembly:
+    RegisterGenericJobType(
+        typeof(TweenDestroySystem<TweenRotation>.DestroyJob))]
+[assembly:
+    RegisterGenericJobType(
+        typeof(TweenDestroySystem<TweenScale>.DestroyJob))]
 
 namespace Timespawn.EntityTween.Tweens
 {
     [UpdateInGroup(typeof(TweenDestroySystemGroup))]
-    internal abstract class TweenDestroySystem<TTweenInfo> : SystemBase 
+    internal abstract class TweenDestroySystem<TTweenInfo> : SystemBase
         where TTweenInfo : struct, IComponentData, ITweenId
     {
         [BurstCompile]
-        private struct DestroyJob : IJobChunk
+        internal struct DestroyJob : IJobChunk
         {
             [ReadOnly] public EntityTypeHandle EntityType;
             [ReadOnly] public ComponentTypeHandle<TTweenInfo> InfoType;
 
-            [NativeDisableContainerSafetyRestriction] public BufferTypeHandle<TweenState> TweenBufferType;
-            [NativeDisableContainerSafetyRestriction] public BufferTypeHandle<TweenDestroyCommand> DestroyCommandType;
+            [NativeDisableContainerSafetyRestriction]
+            public BufferTypeHandle<TweenState> TweenBufferType;
+
+            [NativeDisableContainerSafetyRestriction]
+            public BufferTypeHandle<TweenDestroyCommand> DestroyCommandType;
 
             public EntityCommandBuffer.ParallelWriter ParallelWriter;
 
@@ -58,7 +74,7 @@ namespace Timespawn.EntityTween.Tweens
                             break;
                         }
                     }
-                    
+
                     if (tweenBuffer.IsEmpty)
                     {
                         ParallelWriter.RemoveComponent<TweenState>(chunkIndex, entity);
@@ -84,7 +100,8 @@ namespace Timespawn.EntityTween.Tweens
 
         protected override void OnUpdate()
         {
-            EndSimulationEntityCommandBufferSystem endSimECBSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+            EndSimulationEntityCommandBufferSystem endSimECBSystem =
+                World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
 
             DestroyJob job = new DestroyJob
             {
@@ -100,9 +117,17 @@ namespace Timespawn.EntityTween.Tweens
         }
     }
 
-    internal class TweenTranslationDestroySystem : TweenDestroySystem<TweenTranslation> {}
-    internal class TweenRotationDestroySystem : TweenDestroySystem<TweenRotation> {}
-    internal class TweenScaleDestroySystem : TweenDestroySystem<TweenScale> {}
+    internal class TweenTranslationDestroySystem : TweenDestroySystem<TweenTranslation>
+    {
+    }
+
+    internal class TweenRotationDestroySystem : TweenDestroySystem<TweenRotation>
+    {
+    }
+
+    internal class TweenScaleDestroySystem : TweenDestroySystem<TweenScale>
+    {
+    }
 
 #if UNITY_TINY_ALL_0_31_0 || UNITY_2D_ENTITIES
     internal class TweenTintDestroySystem : TweenDestroySystem<TweenTint> {}
