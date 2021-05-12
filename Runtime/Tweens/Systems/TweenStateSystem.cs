@@ -1,4 +1,5 @@
 ﻿using Unity.Entities;
+using UnityEngine;
 
 namespace Timespawn.EntityTween.Tweens
 {
@@ -6,12 +7,23 @@ namespace Timespawn.EntityTween.Tweens
     [UpdateAfter(typeof(TweenApplySystemGroup))]
     internal class TweenStateSystem : SystemBase
     {
+        private EndSimulationEntityCommandBufferSystem endSimECBSystem;
+
+
+        protected override void OnCreate()
+        {
+            base.OnCreate();
+
+            endSimECBSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+        }
+
         protected override void OnUpdate()
         {
-            BufferFromEntity<TweenDestroyCommand> destroyBufferFromEntity = GetBufferFromEntity<TweenDestroyCommand>(true);
+            BufferFromEntity<TweenDestroyCommand> destroyBufferFromEntity =
+                GetBufferFromEntity<TweenDestroyCommand>(true);
 
-            EndSimulationEntityCommandBufferSystem endSimECBSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
-            EntityCommandBuffer.ParallelWriter parallelWriter = endSimECBSystem.CreateCommandBuffer().AsParallelWriter();
+            EntityCommandBuffer.ParallelWriter
+                parallelWriter = endSimECBSystem.CreateCommandBuffer().AsParallelWriter();
 
             Entities
                 .WithReadOnly(destroyBufferFromEntity)
@@ -22,14 +34,23 @@ namespace Timespawn.EntityTween.Tweens
                     {
                         TweenState tween = tweenBuffer[i];
 
+                        if (tween.IsFinished)
+                        {
+                            //Debug.Log("TweenStateSystem tween.IsFinished");
+                            continue;
+                        }
+                        
                         bool isInfiniteLoop = tween.LoopCount == TweenState.LOOP_COUNT_INFINITE;
                         float normalizedTime = tween.GetNormalizedTime();
+
+
                         if (tween.IsReverting && normalizedTime <= 0.0f)
                         {
                             if (!isInfiniteLoop)
                             {
                                 tween.LoopCount--;
                             }
+
 
                             tween.IsReverting = false;
                             tween.Time = 0.0f;
@@ -48,18 +69,22 @@ namespace Timespawn.EntityTween.Tweens
                                     tween.LoopCount--;
                                 }
 
+                                
                                 tween.Time = 0.0f;
                             }
                         }
 
                         if (!isInfiniteLoop && tween.LoopCount == 0)
                         {
+                            tween.IsFinished = true;
+
                             if (!destroyBufferFromEntity.HasComponent(entity))
                             {
                                 parallelWriter.AddBuffer<TweenDestroyCommand>(entityInQueryIndex, entity);
                             }
 
-                            parallelWriter.AppendToBuffer(entityInQueryIndex, entity, new TweenDestroyCommand(tween.Id));
+                            parallelWriter.AppendToBuffer(entityInQueryIndex, entity,
+                                new TweenDestroyCommand(tween.Id));
                         }
 
                         tweenBuffer[i] = tween;

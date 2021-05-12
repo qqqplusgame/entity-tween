@@ -17,6 +17,7 @@ namespace Timespawn.EntityTween.Tweens
         public bool IsPingPong;
         public byte LoopCount;
         public bool IsReverting;
+        public bool IsFinished;
 
         internal TweenState(
             in EaseType easeType, 
@@ -34,9 +35,10 @@ namespace Timespawn.EntityTween.Tweens
             Duration = duration;
             IsPingPong = isPingPong;
             LoopCount = loopCount;
-
+            
             Time = -math.max(delayedStartTime, 0.0f);
             Id = GenerateId(elapsedTime, chunkIndex, tweenInfoTypeIndex);
+            IsFinished = false;
         }
 
         internal TweenState(in TweenParams tweenParams, in double elapsedTime, in int chunkIndex, in int tweenInfoTypeIndex)

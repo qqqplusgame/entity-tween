@@ -17,6 +17,10 @@ namespace Timespawn.EntityTween
                     for (int i = 0; i < tweenBuffer.Length; i++)
                     {
                         TweenState tween = tweenBuffer[i];
+
+                        if (tween.IsFinished)
+                            continue;
+                        
                         if (tween.Id == tweenInfo.Id)
                         {
                             scale.Value = math.lerp(tweenInfo.Start, tweenInfo.End, tween.EasePercentage);

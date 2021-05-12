@@ -12,18 +12,21 @@ namespace Timespawn.EntityTween
         {
             Entities
                 .WithNone<TweenPause>()
-                .ForEach((ref Rotation rotation, in DynamicBuffer<TweenState> tweenBuffer, in TweenRotation tweenInfo) =>
-                {
-                    for (int i = 0; i < tweenBuffer.Length; i++)
+                .ForEach(
+                    (ref Rotation rotation, in DynamicBuffer<TweenState> tweenBuffer, in TweenRotation tweenInfo) =>
                     {
-                        TweenState tween = tweenBuffer[i];
-                        if (tween.Id == tweenInfo.Id)
+                        for (int i = 0; i < tweenBuffer.Length; i++)
                         {
-                            rotation.Value = math.slerp(tweenInfo.Start, tweenInfo.End, tween.EasePercentage);
-                            break;
+                            TweenState tween = tweenBuffer[i];
+                            if (tween.IsFinished)
+                                continue;
+                            if (tween.Id == tweenInfo.Id)
+                            {
+                                rotation.Value = math.slerp(tweenInfo.Start, tweenInfo.End, tween.EasePercentage);
+                                break;
+                            }
                         }
-                    }
-                }).ScheduleParallel();
+                    }).ScheduleParallel();
         }
     }
 }
