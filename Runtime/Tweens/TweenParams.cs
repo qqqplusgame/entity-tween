@@ -1,4 +1,5 @@
 ﻿using Timespawn.EntityTween.Math;
+using Unity.Entities;
 
 namespace Timespawn.EntityTween
 {
@@ -10,14 +11,16 @@ namespace Timespawn.EntityTween
         public bool IsPingPong;
         public byte LoopCount;
         public float StartDelay;
+        public Entity EndCallBackEntity;
 
         public TweenParams(
-            in float duration, 
-            in EaseType easeType = EaseType.Linear, 
+            in float duration,
+            in EaseType easeType = EaseType.Linear,
             in int easeExponent = 0,
-            in bool isPingPong = false, 
-            in int loopCount = 1, 
-            in float startDelay = 0.0f)
+            in bool isPingPong = false,
+            in int loopCount = 1,
+            in float startDelay = 0.0f
+        )
         {
             Duration = duration;
             EaseType = easeType;
@@ -25,6 +28,7 @@ namespace Timespawn.EntityTween
             IsPingPong = isPingPong;
             LoopCount = (byte) loopCount;
             StartDelay = startDelay;
+            EndCallBackEntity = Entity.Null;
         }
 
         public override string ToString()

@@ -39,7 +39,7 @@ namespace Timespawn.EntityTween.Tweens
                             //Debug.Log("TweenStateSystem tween.IsFinished");
                             continue;
                         }
-                        
+
                         bool isInfiniteLoop = tween.LoopCount == TweenState.LOOP_COUNT_INFINITE;
                         float normalizedTime = tween.GetNormalizedTime();
 
@@ -69,7 +69,7 @@ namespace Timespawn.EntityTween.Tweens
                                     tween.LoopCount--;
                                 }
 
-                                
+
                                 tween.Time = 0.0f;
                             }
                         }
@@ -77,6 +77,12 @@ namespace Timespawn.EntityTween.Tweens
                         if (!isInfiniteLoop && tween.LoopCount == 0)
                         {
                             tween.IsFinished = true;
+
+                            if (tween.EndCallBackEntity != Entity.Null)
+                            {
+                                parallelWriter.AddComponent<TweenEndCallback>(entityInQueryIndex,
+                                    tween.EndCallBackEntity);
+                            }
 
                             if (!destroyBufferFromEntity.HasComponent(entity))
                             {
