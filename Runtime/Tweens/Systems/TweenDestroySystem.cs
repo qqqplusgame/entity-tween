@@ -16,6 +16,14 @@ using Unity.Transforms;
     RegisterGenericJobType(
         typeof(TweenDestroySystem<TweenScale>.DestroyJob))]
 
+[assembly: RegisterGenericJobType(typeof(Timespawn.EntityTween.Tweens.TweenTranslationDestroySystem.DestroyJob))]
+[assembly: RegisterGenericJobType(typeof(Timespawn.EntityTween.Tweens.TweenRotationDestroySystem.DestroyJob))]
+[assembly: RegisterGenericJobType(typeof(Timespawn.EntityTween.Tweens.TweenScaleDestroySystem.DestroyJob))]
+
+#if UNITY_TINY_ALL_0_31_0 || UNITY_2D_ENTITIES
+[assembly: RegisterGenericJobType(typeof(Timespawn.EntityTween.Tweens.TweenTintDestroySystem.DestroyJob))]
+#endif
+
 namespace Timespawn.EntityTween.Tweens
 {
     [UpdateInGroup(typeof(TweenDestroySystemGroup))]
@@ -48,7 +56,7 @@ namespace Timespawn.EntityTween.Tweens
 
                     bool shouldDestroy = false;
                     DynamicBuffer<TweenDestroyCommand> destroyBuffer = destroyBuffers[i];
-                    for (int j = 0; j < destroyBuffer.Length; j++)
+                    for (int j = destroyBuffer.Length - 1; j >= 0; j--)
                     {
                         TweenDestroyCommand command = destroyBuffer[j];
                         if (infos[i].GetTweenId() == command.Id)
@@ -60,11 +68,12 @@ namespace Timespawn.EntityTween.Tweens
 
                     if (!shouldDestroy)
                     {
-                        return;
+                        // Shouldn't go here
+                        continue;
                     }
 
                     DynamicBuffer<TweenState> tweenBuffer = tweenBuffers[i];
-                    for (int j = 0; j < tweenBuffer.Length; j++)
+                    for (int j = tweenBuffer.Length - 1; j >= 0; j--)
                     {
                         TweenState tween = tweenBuffer[j];
                         if (infos[i].GetTweenId() == tween.Id)
