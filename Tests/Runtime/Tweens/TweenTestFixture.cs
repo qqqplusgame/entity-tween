@@ -12,7 +12,9 @@ namespace Timespawn.EntityTween.Tests.Tweens
         protected const float TestHalfDuration = TestDuration / 2.0f;
         protected const float TestDeltaTime = 0.2f;
         protected const int TestLoopCount = 2;
-
+    
+        protected readonly float TestStartFloat = 0.0f;
+        protected readonly float TestEndFloat = 1.0f;
         protected readonly float3 TestStartFloat3 = new float3(0.0f);
         protected readonly float3 TestEndFloat3 = new float3(1.0f);
         protected readonly float4 TestStartFloat4 = new float4(0.0f);

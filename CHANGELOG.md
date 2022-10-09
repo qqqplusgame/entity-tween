@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.6.0] - 2021.08.08
+
+### Changed
+
+- Dependency upgrade
+  - Entities 0.17.0-preview.42 (from 0.14.0-preview.18)
+  - Burst 1.4.9 (from 1.3.6)
+
+### Fixed
+
+- Reflection data of generic jobs has not automatically initialized ([#1](https://github.com/NagaChiang/entity-tween/issues/1))
+
+## [0.5.1] - 2021.08.02
+
+### Fixed
+
+- Ended tweening entity is set back to start value ([#2](https://github.com/NagaChiang/entity-tween/issues/2))
+- Multiple TweenStates are not destroyed properly at the same time
+
 ## [0.5.0] - 2021.01.21
 
 ### Changed

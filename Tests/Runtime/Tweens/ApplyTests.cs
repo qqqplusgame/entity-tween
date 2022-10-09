@@ -30,8 +30,8 @@ namespace Timespawn.EntityTween.Tests.Tweens
 
             float percentage = Ease.CalculatePercentage(TestDeltaTime, default, default);
             float3 expected = math.lerp(TestStartFloat3, TestEndFloat3, percentage);
-            Translation translation = EntityManager.GetComponentData<Translation>(entity);
-            Assert.AreEqual(expected, translation.Value);
+            LocalToWorldTransform translation = EntityManager.GetComponentData<LocalToWorldTransform>(entity);
+            Assert.AreEqual(expected, translation.Value.Position);
         }
 
         [Test]
@@ -47,15 +47,15 @@ namespace Timespawn.EntityTween.Tests.Tweens
 
             float percentage = Ease.CalculatePercentage(TestDeltaTime, default, default);
             quaternion expected = math.slerp(TestStartQuat, TestEndQuat, percentage);
-            Rotation rotation = EntityManager.GetComponentData<Rotation>(entity);
-            Assert.AreEqual(expected, rotation.Value);
+            LocalToWorldTransform rotation = EntityManager.GetComponentData<LocalToWorldTransform>(entity);
+            Assert.AreEqual(expected, rotation.Value.Rotation);
         }
 
         [Test]
         public void Scale()
         {
             Entity entity = EntityManager.CreateEntity();
-            Tween.Scale(EntityManager, entity, TestStartFloat3, TestEndFloat3, TestDuration);
+            Tween.Scale(EntityManager, entity, TestStartFloat, TestEndFloat, TestDuration);
 
             World.Update();
             World.Update();
@@ -64,8 +64,8 @@ namespace Timespawn.EntityTween.Tests.Tweens
 
             float percentage = Ease.CalculatePercentage(TestDeltaTime, default, default);
             float3 expected = math.lerp(TestStartFloat3, TestEndFloat3, percentage);
-            NonUniformScale scale = EntityManager.GetComponentData<NonUniformScale>(entity);
-            Assert.AreEqual(expected, scale.Value);
+            LocalToWorldTransform scale = EntityManager.GetComponentData<LocalToWorldTransform>(entity);
+            Assert.AreEqual(expected, scale.Value.Scale);
         }
 
 #if UNITY_TINY_ALL_0_31_0 || UNITY_2D_ENTITIES

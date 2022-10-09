@@ -3,20 +3,23 @@ using Unity.Mathematics;
 
 namespace Timespawn.EntityTween.Tweens
 {
-    internal struct TweenScaleCommand : IComponentData, ITweenParams, ITweenInfo<float3>
+    /// <summary>
+    /// Uniform scale tween.
+    /// </summary>
+    internal struct TweenScaleCommand : IComponentData, ITweenParams, ITweenInfo<float>
     {
         public TweenParams TweenParams;
-        public float3 Start;
-        public float3 End;
+        public float Start;
+        public float End;
 
-        public TweenScaleCommand(in TweenParams tweenParams, in float3 start, in float3 end)
+        public TweenScaleCommand(in TweenParams tweenParams, in float start, in float end)
         {
             TweenParams = tweenParams;
             Start = start;
             End = end;
         }
 
-        public void SetTweenInfo(in float3 start, in float3 end)
+        public void SetTweenInfo(in float start, in float end)
         {
             Start = start;
             End = end;
@@ -32,12 +35,12 @@ namespace Timespawn.EntityTween.Tweens
             return TweenParams;
         }
 
-        public float3 GetTweenStart()
+        public float GetTweenStart()
         {
             return Start;
         }
 
-        public float3 GetTweenEnd()
+        public float GetTweenEnd()
         {
             return End;
         }

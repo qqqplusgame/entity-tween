@@ -6,11 +6,11 @@ using UnityEngine;
 namespace Timespawn.EntityTween
 {
     [UpdateInGroup(typeof(TweenSimulationSystemGroup))]
-    internal class TweenEaseSystem : SystemBase
+    internal partial class TweenEaseSystem : SystemBase
     {
         protected override void OnUpdate()
         {
-            float deltaTime = Time.DeltaTime;
+            float deltaTime = World.Time.DeltaTime;
 
             Entities
                 .WithNone<TweenPause>()
@@ -19,11 +19,12 @@ namespace Timespawn.EntityTween
                     for (int i = 0; i < tweenBuffer.Length; i++)
                     {
                         TweenState tween = tweenBuffer[i];
-                        if (tween.IsFinished)
-                        {
-                            //Debug.Log("TweenEaseSystem tween.IsFinished");
-                            continue;
-                        }
+                        // if (tween.IsFinished)
+                        // {
+                        //     //Debug.Log("TweenEaseSystem tween.IsFinished");
+                        //     continue;
+                        // }
+
                         tween.Time += tween.IsReverting ? -deltaTime : deltaTime;
 
                         float normalizedTime = tween.GetNormalizedTime();

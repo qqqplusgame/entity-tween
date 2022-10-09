@@ -30,7 +30,7 @@ namespace Timespawn.EntityTween.Tests.Common
 
         protected void OverrideNextDeltaTime(float deltaTime)
         {
-            World.GetOrCreateSystem<OverrideTimeSystem>().OverrideNextDeltaTime(deltaTime);
+            World.GetOrCreateSystemManaged<OverrideTimeSystem>().OverrideNextDeltaTime(deltaTime);
         }
     }
 }

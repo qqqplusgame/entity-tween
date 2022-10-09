@@ -5,13 +5,13 @@ namespace Timespawn.EntityTween.Tweens
     [UpdateInGroup(typeof(TweenSimulationSystemGroup))]
     [UpdateAfter(typeof(TweenStateSystem))]
     [UpdateBefore(typeof(TweenDestroySystemGroup))]
-    internal class TweenStopSystem : SystemBase
+    internal partial class TweenStopSystem : SystemBase
     {
         protected override void OnUpdate()
         {
-            BufferFromEntity<TweenDestroyCommand> destroyBufferFromEntity = GetBufferFromEntity<TweenDestroyCommand>(true);
+            BufferLookup<TweenDestroyCommand> destroyBufferFromEntity = GetBufferLookup<TweenDestroyCommand>(true);
 
-            EndSimulationEntityCommandBufferSystem endSimECBSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+            EndSimulationEntityCommandBufferSystem endSimECBSystem = World.GetOrCreateSystemManaged<EndSimulationEntityCommandBufferSystem>();
             EntityCommandBuffer.ParallelWriter parallelWriter = endSimECBSystem.CreateCommandBuffer().AsParallelWriter();
 
             Entities

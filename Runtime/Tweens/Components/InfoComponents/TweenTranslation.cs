@@ -4,7 +4,7 @@ using Unity.Transforms;
 
 namespace Timespawn.EntityTween.Tweens
 {
-    [WriteGroup(typeof(Translation))]
+    [WriteGroup(typeof(LocalToWorldTransform ))]
     public struct TweenTranslation : IComponentData, ITweenId, ITweenInfo<float3>
     {
         public int Id;

@@ -4,13 +4,13 @@ namespace Timespawn.EntityTween.Tweens
 {
     [UpdateInGroup(typeof(TweenSimulationSystemGroup))]
     [UpdateAfter(typeof(TweenStateSystem))]
-    internal class TweenResumeSystem : SystemBase
+    internal partial class TweenResumeSystem : SystemBase
     {
         protected override void OnUpdate()
         {
-            EndSimulationEntityCommandBufferSystem endSimECBSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+            EndSimulationEntityCommandBufferSystem endSimECBSystem = World.GetOrCreateSystemManaged<EndSimulationEntityCommandBufferSystem>();
             EntityCommandBuffer.ParallelWriter parallelWriter = endSimECBSystem.CreateCommandBuffer().AsParallelWriter();
-            ComponentDataFromEntity<TweenPause> pauseFromEntity = GetComponentDataFromEntity<TweenPause>();
+            ComponentLookup<TweenPause> pauseFromEntity = GetComponentLookup<TweenPause>();
 
             Entities
                 .WithReadOnly(pauseFromEntity)

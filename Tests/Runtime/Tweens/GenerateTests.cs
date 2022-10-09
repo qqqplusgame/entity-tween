@@ -21,7 +21,7 @@ namespace Timespawn.EntityTween.Tests.Tweens
         {
             Entity entity = EntityManager.CreateEntity();
             Tween.Move(EntityManager, entity, TestStartFloat3, TestEndFloat3, TestDuration);
-            Test<TweenTranslationCommand, TweenTranslation, Translation, float3>(entity, TestStartFloat3, TestEndFloat3, TestDuration);
+            Test<TweenTranslationCommand, TweenTranslation, LocalToWorldTransform, float3>(entity, TestStartFloat3, TestEndFloat3, TestDuration);
         }
 
         [Test]
@@ -29,15 +29,15 @@ namespace Timespawn.EntityTween.Tests.Tweens
         {
             Entity entity = EntityManager.CreateEntity();
             Tween.Rotate(EntityManager, entity, TestStartQuat, TestEndQuat, TestDuration);
-            Test<TweenRotationCommand, TweenRotation, Rotation, quaternion>(entity, TestStartQuat, TestEndQuat, TestDuration);
+            Test<TweenRotationCommand, TweenRotation, LocalToWorldTransform, quaternion>(entity, TestStartQuat, TestEndQuat, TestDuration);
         }
 
         [Test]
         public void Scale()
         {
             Entity entity = EntityManager.CreateEntity();
-            Tween.Scale(EntityManager, entity, TestStartFloat3, TestEndFloat3, TestDuration);
-            Test<TweenScaleCommand, TweenScale, NonUniformScale, float3>(entity, TestStartFloat3, TestEndFloat3, TestDuration);
+            Tween.Scale(EntityManager, entity, TestStartFloat, TestEndFloat, TestDuration);
+            Test<TweenScaleCommand, TweenScale, LocalToWorldTransform, float>(entity, TestStartFloat, TestEndFloat, TestDuration);
         }
 
 #if UNITY_TINY_ALL_0_31_0 || UNITY_2D_ENTITIES
@@ -54,7 +54,7 @@ namespace Timespawn.EntityTween.Tests.Tweens
 
         private void Test<TTweenCommand, TTweenInfo, TTarget, TTweenInfoValue>(Entity entity, TTweenInfoValue start, TTweenInfoValue end, float duration)
             where TTweenCommand : struct, IComponentData, ITweenParams, ITweenInfo<TTweenInfoValue>
-            where TTweenInfo : struct, IComponentData, ITweenId, ITweenInfo<TTweenInfoValue>
+            where TTweenInfo : unmanaged, IComponentData, ITweenId, ITweenInfo<TTweenInfoValue>
             where TTarget : struct, IComponentData
             where TTweenInfoValue : struct
         {

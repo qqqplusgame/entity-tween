@@ -4,7 +4,7 @@ using Unity.Mathematics;
 
 namespace Timespawn.EntityTween.Tweens
 {
-    public struct TweenEndCallback : ISystemStateComponentData
+    public struct TweenEndCallback : ICleanupComponentData
     {
     }
 
@@ -21,7 +21,7 @@ namespace Timespawn.EntityTween.Tweens
         public bool IsPingPong;
         public byte LoopCount;
         public bool IsReverting;
-        public bool IsFinished;
+        //public bool IsFinished;
         public Entity EndCallBackEntity;
 
         internal TweenState(
@@ -44,7 +44,7 @@ namespace Timespawn.EntityTween.Tweens
 
             Time = -math.max(delayedStartTime, 0.0f);
             Id = GenerateId(elapsedTime, chunkIndex, tweenInfoTypeIndex);
-            IsFinished = false;
+            //IsFinished = false;
             EndCallBackEntity = endCallBackEntity;
         }
 

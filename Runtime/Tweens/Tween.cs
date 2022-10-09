@@ -198,8 +198,8 @@ namespace Timespawn.EntityTween.Tweens
         public static void Scale(
             in EntityManager entityManager, 
             in Entity entity, 
-            in float3 start,
-            in float3 end, 
+            in float start,
+            in float end, 
             in TweenParams tweenParams)
         {
             Scale(entityManager, entity, start, end, tweenParams.Duration, new EaseDesc(tweenParams.EaseType, tweenParams.EaseExponent), tweenParams.IsPingPong, tweenParams.LoopCount, tweenParams.StartDelay);
@@ -208,8 +208,8 @@ namespace Timespawn.EntityTween.Tweens
         public static void Scale(
             in EntityCommandBuffer commandBuffer, 
             in Entity entity, 
-            in float3 start, 
-            in float3 end,
+            in float start, 
+            in float end,
             in TweenParams tweenParams)
         {
             Scale(commandBuffer, entity, start, end, tweenParams.Duration, new EaseDesc(tweenParams.EaseType, tweenParams.EaseExponent), tweenParams.IsPingPong, tweenParams.LoopCount, tweenParams.StartDelay);
@@ -219,8 +219,8 @@ namespace Timespawn.EntityTween.Tweens
             in EntityCommandBuffer.ParallelWriter parallelWriter, 
             in int sortKey, 
             in Entity entity, 
-            in float3 start, 
-            in float3 end, 
+            in float start, 
+            in float end, 
             in TweenParams tweenParams)
         {
             Scale(parallelWriter, sortKey, entity, start, end, tweenParams.Duration, new EaseDesc(tweenParams.EaseType, tweenParams.EaseExponent), tweenParams.IsPingPong, tweenParams.LoopCount, tweenParams.StartDelay);
@@ -229,8 +229,8 @@ namespace Timespawn.EntityTween.Tweens
         public static void Scale(
             in EntityManager entityManager,
             in Entity entity,
-            in float3 start, 
-            in float3 end, 
+            in float start, 
+            in float end, 
             in float duration,
             in EaseDesc easeDesc = default,
             in bool isPingPong = false, 
@@ -249,8 +249,8 @@ namespace Timespawn.EntityTween.Tweens
         public static void Scale(
             in EntityCommandBuffer commandBuffer,
             in Entity entity,
-            in float3 start, 
-            in float3 end, 
+            in float start, 
+            in float end, 
             in float duration,
             in EaseDesc easeDesc = default,
             in bool isPingPong = false, 
@@ -270,8 +270,8 @@ namespace Timespawn.EntityTween.Tweens
             in EntityCommandBuffer.ParallelWriter parallelWriter,
             in int sortKey,
             in Entity entity,
-            in float3 start, 
-            in float3 end, 
+            in float start, 
+            in float end, 
             in float duration,
             in EaseDesc easeDesc = default,
             in bool isPingPong = false, 

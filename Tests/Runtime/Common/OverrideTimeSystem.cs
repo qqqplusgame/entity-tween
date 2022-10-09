@@ -6,7 +6,7 @@ namespace Timespawn.EntityTween.Tests.Common
     [DisableAutoCreation]
     [UpdateInGroup(typeof(InitializationSystemGroup))]
     [UpdateAfter(typeof(UpdateWorldTimeSystem))]
-    public class OverrideTimeSystem : SystemBase
+    public partial class OverrideTimeSystem : SystemBase
     {
         private bool IsPendingOverride;
         private float OverrideDeltaTime;

@@ -6,24 +6,24 @@ using Unity.Transforms;
 namespace Timespawn.EntityTween
 {
     [UpdateInGroup(typeof(TweenApplySystemGroup))]
-    internal class TweenScaleSystem : SystemBase
+    internal partial class TweenScaleSystem : SystemBase
     {
         protected override void OnUpdate()
         {
             Entities
                 .WithNone<TweenPause>()
-                .ForEach((ref NonUniformScale scale, in DynamicBuffer<TweenState> tweenBuffer, in TweenScale tweenInfo) =>
+                .ForEach((ref LocalToWorldTransform scale, in DynamicBuffer<TweenState> tweenBuffer, in TweenScale tweenInfo) =>
                 {
                     for (int i = 0; i < tweenBuffer.Length; i++)
                     {
                         TweenState tween = tweenBuffer[i];
 
-                        if (tween.IsFinished)
-                            continue;
+                        // if (tween.IsFinished)
+                        //     continue;
                         
                         if (tween.Id == tweenInfo.Id)
                         {
-                            scale.Value = math.lerp(tweenInfo.Start, tweenInfo.End, tween.EasePercentage);
+                            scale.Value.Scale = math.lerp(tweenInfo.Start, tweenInfo.End, tween.EasePercentage);
                             break;
                         }
                     }

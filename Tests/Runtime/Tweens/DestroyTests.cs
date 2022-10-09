@@ -34,8 +34,28 @@ namespace Timespawn.EntityTween.Tests.Tweens
         public void Scale()
         {
             Entity entity = EntityManager.CreateEntity();
-            Tween.Scale(EntityManager, entity, TestStartFloat3, TestEndFloat3, TestDuration);
+            Tween.Scale(EntityManager, entity, TestStartFloat, TestEndFloat, TestDuration);
             Test<TweenScale>(entity);
+        }
+
+        [Test]
+        public void MoveAndRotate()
+        {
+            Entity entity = EntityManager.CreateEntity();
+            Tween.Move(EntityManager, entity, TestStartFloat3, TestEndFloat3, TestDuration);
+            Tween.Rotate(EntityManager, entity, TestStartQuat, TestEndQuat, TestDuration);
+
+            World.Update();
+            World.Update();
+
+            OverrideNextDeltaTime(TestDuration);
+
+            World.Update();
+            World.Update();
+            
+            Assert.IsFalse(EntityManager.HasComponent<TweenState>(entity));
+            Assert.IsFalse(EntityManager.HasComponent<TweenTranslation>(entity));
+            Assert.IsFalse(EntityManager.HasComponent<TweenRotation>(entity));
         }
 
 #if UNITY_TINY_ALL_0_31_0 || UNITY_2D_ENTITIES

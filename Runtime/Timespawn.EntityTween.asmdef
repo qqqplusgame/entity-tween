@@ -1,12 +1,14 @@
 {
     "name": "Timespawn.EntityTween",
+    "rootNamespace": "",
     "references": [
         "Unity.Entities",
         "Unity.Mathematics",
         "Unity.Transforms",
         "Unity.Burst",
         "Unity.Tiny.2D",
-        "Unity.2D.Entities.SpriteRenderer"
+        "Unity.2D.Entities.SpriteRenderer",
+        "Unity.Collections"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

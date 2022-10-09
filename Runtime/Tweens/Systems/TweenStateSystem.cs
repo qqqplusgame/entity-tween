@@ -5,7 +5,7 @@ namespace Timespawn.EntityTween.Tweens
 {
     [UpdateInGroup(typeof(TweenSimulationSystemGroup))]
     [UpdateAfter(typeof(TweenApplySystemGroup))]
-    internal class TweenStateSystem : SystemBase
+    internal partial class TweenStateSystem : SystemBase
     {
         private EndSimulationEntityCommandBufferSystem endSimECBSystem;
 
@@ -14,31 +14,35 @@ namespace Timespawn.EntityTween.Tweens
         {
             base.OnCreate();
 
-            endSimECBSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+            endSimECBSystem = World.GetOrCreateSystemManaged<EndSimulationEntityCommandBufferSystem>();
         }
 
         protected override void OnUpdate()
         {
-            BufferFromEntity<TweenDestroyCommand> destroyBufferFromEntity =
-                GetBufferFromEntity<TweenDestroyCommand>(true);
+            BufferLookup<TweenDestroyCommand> destroyBufferFromEntity = GetBufferLookup<TweenDestroyCommand>(true);
 
-            EntityCommandBuffer.ParallelWriter
-                parallelWriter = endSimECBSystem.CreateCommandBuffer().AsParallelWriter();
+            EntityCommandBuffer.ParallelWriter parallelWriter = endSimECBSystem.CreateCommandBuffer().AsParallelWriter();
 
             Entities
                 .WithReadOnly(destroyBufferFromEntity)
                 .WithNone<TweenPause>()
                 .ForEach((Entity entity, int entityInQueryIndex, ref DynamicBuffer<TweenState> tweenBuffer) =>
                 {
+                    DynamicBuffer<TweenDestroyCommand> newDestroyCommandBuffer = default;
+                    if (!destroyBufferFromEntity.HasComponent(entity))
+                    {
+                        newDestroyCommandBuffer = parallelWriter.AddBuffer<TweenDestroyCommand>(entityInQueryIndex, entity);
+                    }
+
                     for (int i = tweenBuffer.Length - 1; i >= 0; i--)
                     {
                         TweenState tween = tweenBuffer[i];
 
-                        if (tween.IsFinished)
-                        {
-                            //Debug.Log("TweenStateSystem tween.IsFinished");
-                            continue;
-                        }
+                        // if (tween.IsFinished)
+                        // {
+                        //     //Debug.Log("TweenStateSystem tween.IsFinished");
+                        //     continue;
+                        // }
 
                         bool isInfiniteLoop = tween.LoopCount == TweenState.LOOP_COUNT_INFINITE;
                         float normalizedTime = tween.GetNormalizedTime();
@@ -69,14 +73,17 @@ namespace Timespawn.EntityTween.Tweens
                                     tween.LoopCount--;
                                 }
 
-
-                                tween.Time = 0.0f;
+                                if (isInfiniteLoop || tween.LoopCount > 0)
+                                {
+                                    tween.Time = 0.0f;
+                                }
                             }
                         }
 
                         if (!isInfiniteLoop && tween.LoopCount == 0)
                         {
-                            tween.IsFinished = true;
+                            
+                            //tween.IsFinished = true;
 
                             if (tween.EndCallBackEntity != Entity.Null)
                             {
@@ -84,13 +91,15 @@ namespace Timespawn.EntityTween.Tweens
                                     tween.EndCallBackEntity);
                             }
 
-                            if (!destroyBufferFromEntity.HasComponent(entity))
+                        
+                            if (newDestroyCommandBuffer.IsCreated)
                             {
-                                parallelWriter.AddBuffer<TweenDestroyCommand>(entityInQueryIndex, entity);
+                                newDestroyCommandBuffer.Add(new TweenDestroyCommand(tween.Id));
                             }
-
-                            parallelWriter.AppendToBuffer(entityInQueryIndex, entity,
-                                new TweenDestroyCommand(tween.Id));
+                            else
+                            {
+                                parallelWriter.AppendToBuffer(entityInQueryIndex, entity, new TweenDestroyCommand(tween.Id));
+                            }
                         }
 
                         tweenBuffer[i] = tween;

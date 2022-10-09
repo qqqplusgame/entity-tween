@@ -12,7 +12,7 @@ using Unity.Mathematics;
 namespace Timespawn.EntityTween
 {
     [UpdateInGroup(typeof(TweenApplySystemGroup))]
-    internal class TweenTintSystem : SystemBase
+    internal partial class TweenTintSystem : SystemBase
     {
         protected override void OnUpdate()
         {

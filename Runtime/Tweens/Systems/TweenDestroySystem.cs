@@ -1,26 +1,28 @@
 ﻿using Timespawn.EntityTween.Tweens;
 using Unity.Burst;
+using Unity.Burst.Intrinsics;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
+
 [assembly:
-    RegisterGenericJobType(
-        typeof(TweenDestroySystem<TweenTranslation>.DestroyJob))]
+    Unity.Jobs.RegisterGenericJobType(typeof(Timespawn.EntityTween.Tweens.TweenTranslationDestroySystem.DestroyJob))]
 [assembly:
-    RegisterGenericJobType(
-        typeof(TweenDestroySystem<TweenRotation>.DestroyJob))]
-[assembly:
-    RegisterGenericJobType(
-        typeof(TweenDestroySystem<TweenScale>.DestroyJob))]
+    Unity.Jobs.RegisterGenericJobType(typeof(Timespawn.EntityTween.Tweens.TweenRotationDestroySystem.DestroyJob))]
+[assembly: Unity.Jobs.RegisterGenericJobType(typeof(Timespawn.EntityTween.Tweens.TweenScaleDestroySystem.DestroyJob))]
+
+#if UNITY_TINY_ALL_0_31_0 || UNITY_2D_ENTITIES
+[assembly: RegisterGenericJobType(typeof(Timespawn.EntityTween.Tweens.TweenTintDestroySystem.DestroyJob))]
+#endif
 
 namespace Timespawn.EntityTween.Tweens
 {
     [UpdateInGroup(typeof(TweenDestroySystemGroup))]
-    internal abstract class TweenDestroySystem<TTweenInfo> : SystemBase
-        where TTweenInfo : struct, IComponentData, ITweenId
+    internal abstract partial class TweenDestroySystem<TTweenInfo> : SystemBase
+        where TTweenInfo : unmanaged, IComponentData, ITweenId
     {
         [BurstCompile]
         internal struct DestroyJob : IJobChunk
@@ -36,7 +38,7 @@ namespace Timespawn.EntityTween.Tweens
 
             public EntityCommandBuffer.ParallelWriter ParallelWriter;
 
-            public void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex)
+            public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask)
             {
                 NativeArray<Entity> entities = chunk.GetNativeArray(EntityType);
                 NativeArray<TTweenInfo> infos = chunk.GetNativeArray(InfoType);
@@ -48,7 +50,7 @@ namespace Timespawn.EntityTween.Tweens
 
                     bool shouldDestroy = false;
                     DynamicBuffer<TweenDestroyCommand> destroyBuffer = destroyBuffers[i];
-                    for (int j = 0; j < destroyBuffer.Length; j++)
+                    for (int j = destroyBuffer.Length - 1; j >= 0; j--)
                     {
                         TweenDestroyCommand command = destroyBuffer[j];
                         if (infos[i].GetTweenId() == command.Id)
@@ -60,32 +62,34 @@ namespace Timespawn.EntityTween.Tweens
 
                     if (!shouldDestroy)
                     {
-                        return;
+                        // Shouldn't go here
+                        continue;
                     }
 
                     DynamicBuffer<TweenState> tweenBuffer = tweenBuffers[i];
-                    for (int j = 0; j < tweenBuffer.Length; j++)
+                    for (int j = tweenBuffer.Length - 1; j >= 0; j--)
                     {
                         TweenState tween = tweenBuffer[j];
                         if (infos[i].GetTweenId() == tween.Id)
                         {
                             tweenBuffer.RemoveAt(j);
-                            ParallelWriter.RemoveComponent<TTweenInfo>(chunkIndex, entity);
+                            ParallelWriter.RemoveComponent<TTweenInfo>(unfilteredChunkIndex, entity);
                             break;
                         }
                     }
 
                     if (tweenBuffer.IsEmpty)
                     {
-                        ParallelWriter.RemoveComponent<TweenState>(chunkIndex, entity);
+                        ParallelWriter.RemoveComponent<TweenState>(unfilteredChunkIndex, entity);
                     }
 
                     if (destroyBuffer.IsEmpty)
                     {
-                        ParallelWriter.RemoveComponent<TweenDestroyCommand>(chunkIndex, entity);
+                        ParallelWriter.RemoveComponent<TweenDestroyCommand>(unfilteredChunkIndex, entity);
                     }
                 }
             }
+            
         }
 
         private EntityQuery TweenInfoQuery;
@@ -101,7 +105,7 @@ namespace Timespawn.EntityTween.Tweens
         protected override void OnUpdate()
         {
             EndSimulationEntityCommandBufferSystem endSimECBSystem =
-                World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+                World.GetOrCreateSystemManaged<EndSimulationEntityCommandBufferSystem>();
 
             DestroyJob job = new DestroyJob
             {
@@ -116,18 +120,14 @@ namespace Timespawn.EntityTween.Tweens
             endSimECBSystem.AddJobHandleForProducer(Dependency);
         }
     }
-
-    internal class TweenTranslationDestroySystem : TweenDestroySystem<TweenTranslation>
-    {
-    }
-
-    internal class TweenRotationDestroySystem : TweenDestroySystem<TweenRotation>
-    {
-    }
-
-    internal class TweenScaleDestroySystem : TweenDestroySystem<TweenScale>
-    {
-    }
+    
+    internal class TweenTranslationDestroySystem : TweenDestroySystem<TweenTranslation> {}
+    internal class TweenRotationDestroySystem : TweenDestroySystem<TweenRotation> {}
+    internal class TweenScaleDestroySystem : TweenDestroySystem<TweenScale> {}
+    
+#if UNITY_TINY_ALL_0_31_0 || UNITY_2D_ENTITIES
+    internal class TweenTintGenerateSystem : TweenGenerateSystem<TweenTintCommand, TweenTint, SpriteRenderer, float4> {}
+#endif
 
 #if UNITY_TINY_ALL_0_31_0 || UNITY_2D_ENTITIES
     internal class TweenTintDestroySystem : TweenDestroySystem<TweenTint> {}
